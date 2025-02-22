@@ -86,7 +86,6 @@ func updateToDoItem(w http.ResponseWriter, r *http.Request) {
 	var toDo ToDo
 	jsonDecoder.Decode(&toDo)
 	toDos[id] = toDo
-	//	slices.Insert(toDos, id, toDo)
 	jsonToDos, _ := json.Marshal(toDos)
 	fmt.Fprintf(w, "%s", jsonToDos)
 }
