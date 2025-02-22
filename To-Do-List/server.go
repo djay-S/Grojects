@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 // var toDoList []string `json:"toDoList"`
@@ -25,6 +26,12 @@ func main() {
 
 	http.HandleFunc("/add", addToDoItem)
 
+	http.HandleFunc("/delete/id/{id}", deleteToDoItem)
+
+	http.HandleFunc("/delete", deleteToDoList)
+
+	http.HandleFunc("/update/id/{id}", updateToDoItem)
+
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
@@ -42,19 +49,30 @@ func addToDoItem(w http.ResponseWriter, r *http.Request) {
 	var toDo ToDo
 	jsonDecoder.Decode(&toDo)
 	toDos = append(toDos, toDo)
+	jsonToDos, _ := json.Marshal(toDos)
+	fmt.Fprintf(w, "%s", jsonToDos)
 }
 
 func deleteToDoItem(w http.ResponseWriter, r *http.Request) {
-	log.Print("Deleting To Do item")
-	jsonDecoder := *json.NewDecoder(r.Body)
-	var deleteToDo ToDo
-	jsonDecoder.Decode(deleteToDo)
+	id, _ := strconv.Atoi(r.PathValue("id"))
+	log.Print("Deleting To Do item of id")
+	toDos = append(toDos[:id], toDos[id+1:]...)
+	fmt.Fprintf(w, "%s", toDos)
 }
 
 func deleteToDoList(w http.ResponseWriter, r *http.Request) {
 	log.Print("Deleting To Do List")
+	toDos = toDos[:0]
 }
 
 func updateToDoItem(w http.ResponseWriter, r *http.Request) {
 	log.Print("Updating To Do Item")
+	id, _ := strconv.Atoi(r.PathValue("id"))
+	jsonDecoder := json.NewDecoder(r.Body)
+	var toDo ToDo
+	jsonDecoder.Decode(&toDo)
+	toDos[id] = toDo
+	//	slices.Insert(toDos, id, toDo)
+	jsonToDos, _ := json.Marshal(toDos)
+	fmt.Fprintf(w, "%s", jsonToDos)
 }
