@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"slices"
 	"strconv"
 )
 
@@ -25,6 +26,8 @@ func main() {
 	http.HandleFunc("/get", getToDoList)
 
 	http.HandleFunc("/add", addToDoItem)
+
+	http.HandleFunc("/add/id/{id}", insertToDoItemToIdx)
 
 	http.HandleFunc("/delete/id/{id}", deleteToDoItem)
 
@@ -49,6 +52,17 @@ func addToDoItem(w http.ResponseWriter, r *http.Request) {
 	var toDo ToDo
 	jsonDecoder.Decode(&toDo)
 	toDos = append(toDos, toDo)
+	jsonToDos, _ := json.Marshal(toDos)
+	fmt.Fprintf(w, "%s", jsonToDos)
+}
+
+func insertToDoItemToIdx(w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.Atoi(r.PathValue("id"))
+	log.Print("Insert a new To Do Item")
+	jsonDecoder := json.NewDecoder(r.Body)
+	var toDo ToDo
+	jsonDecoder.Decode(&toDo)
+	toDos = slices.Insert(toDos, id, toDo)
 	jsonToDos, _ := json.Marshal(toDos)
 	fmt.Fprintf(w, "%s", jsonToDos)
 }
