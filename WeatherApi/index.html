@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>City Weather</title>
+</head>
+<body>
+    <select id="cityDropdown">
+        <option>Select City</option>
+        <option>London</option>
+        <option>Mumbai</option>
+    </select>
+    <div id="weatherDetails"></div>
+
+    <script>
+        const baseUrl = 'http://localhost:8080'
+        const cityDropdown = document.getElementById('cityDropdown');
+        const weatherDetails = document.getElementById('weatherDetails');
+
+        async function fetchCities() {
+            try {
+                const response = await fetch(baseUrl + '/cities');
+                const cities = await response.json();
+                console.log(cities);
+                cities.forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city.name;
+                    option.textContent = city.name;
+                    cityDropdown.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error fetching cities:', error);
+            }
+        }
+
+        async function fetchWeather(cityId) {
+            try {
+//                const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${cityId}&APPID=15c0d5456a13afcca00e29d8ce984ed5`);
+                const response = await fetch(baseUrl + '/weather/city/' + cityId)
+                const weather = await response.json();
+                weatherDetails.textContent = JSON.stringify(weather, null, 2);
+            } catch (error) {
+                console.error('Error fetching weather:', error);
+            }
+        }
+
+        cityDropdown.addEventListener('change', (event) => {
+            const cityId = event.target.value;
+            if (cityId == "London") {
+                fetchWeather("london,uk");
+            }
+            if (cityId == "Mumbai") {
+                fetchWeather("mumbai,in");
+            }
+            else {
+                fetchWeather(cityId.toLowerCase())
+            }
+        });
+
+         fetchCities();
+    </script>
+</body>
+</html>
+
