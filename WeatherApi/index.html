@@ -11,6 +11,8 @@
         <option>London</option>
         <option>Mumbai</option>
     </select>
+   <input type="text" id = "cityInput" placeholder = "Type City Name"/>
+   <button id="searchButton">Search</button>
     <div id="weatherDetails"></div>
 
     <script>
@@ -55,6 +57,12 @@
             else {
                 fetchWeather(cityId.toLowerCase())
             }
+        });
+
+        searchButton.addEventListener('click', () => {
+            const cityName = cityInput.value.trim().toLowerCase();
+            if(!cityName) return;
+            fetchWeather(cityName);
         });
 
          fetchCities();

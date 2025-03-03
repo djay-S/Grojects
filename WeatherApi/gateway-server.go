@@ -39,7 +39,11 @@ func fetchWeatherData(w http.ResponseWriter, r *http.Request) {
 	handleCors(&w)
 	cityName := r.PathValue("cityName")
 	log.Printf("Fetching weather details for city: %v", cityName)
-	resp := GetWeatherDataResponse(cityName)
+	resp, err := GetWeatherDataResponse(cityName)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	// json.NewEncoder(w).Encode(resp)

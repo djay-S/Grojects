@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -106,7 +107,7 @@ func getWeatherData() {
 	log.Printf("Bosy string: %v", string(bodyResponse))
 }
 
-func GetWeatherDataResponse(cityName string) string {
+func GetWeatherDataResponse(cityName string) (string, error) {
 	log.Printf("GetWeatherDataResponse for city: %v", cityName)
 	apiKey := getApiKey()
 	locUrl := strings.ReplaceAll(url, "<api_id>", apiKey)
@@ -117,18 +118,21 @@ func GetWeatherDataResponse(cityName string) string {
 	resp, err := http.Get(locUrl)
 	if err != nil {
 		log.Printf("Error occurred %v", err)
-		return ""
+		return "", err
 	}
 	defer resp.Body.Close()
-	// log.Printf("Response: %v", resp)
+	log.Printf("Response: %v", resp)
 
 	bodyResponse, err := io.ReadAll(resp.Body)
 	// log.Printf("Bosy string: %v", string(bodyResponse))
 	if err != nil {
 		log.Printf("Error occurred in reading the response: %v", err)
+		return "", err
 	}
-
-	return string(bodyResponse)
+	if resp.StatusCode != 200 {
+		return string(bodyResponse), fmt.Errorf(string(bodyResponse))
+	}
+	return string(bodyResponse), nil
 }
 
 func getApiKey() string {
